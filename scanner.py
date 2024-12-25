@@ -1,8 +1,10 @@
 import os
 import hashlib
 import requests
-from notifypy import Notify
 
+from notifypy import Notify
+import json
+from datetime import datetime
 
 
 
@@ -12,6 +14,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Полные пути к файлам
 API_KEY_FILE = os.path.join(BASE_DIR, "api_key.env")
+LAST_THREATS_FILE = os.path.join(BASE_DIR, "last_threats.env")
 
 
 
@@ -52,11 +55,10 @@ def scan_file(api_key, file_path):
 def scan_and_display(api_key, file_path, ismon, open_application, update_status):
     update_status(f"Сканирование файла: {file_path}")
     result = scan_file(api_key, file_path)
-    
     detailed_threat = ""
+
     if result.get("positives", 0) > 0:
- 
-        detailed_threat += f"Угроза в файле: {file_path}\n"
+        detailed_threat = f"Угроза в файле: {file_path}\n"
         detailed_threat += f"Обнаружено угроз: {result['positives']} из {result['total']}\n"
         for engine, details in result['scans'].items():
             if details['detected']:
@@ -65,7 +67,13 @@ def scan_and_display(api_key, file_path, ismon, open_application, update_status)
 
         update_status(f"Обнаружена угроза в файле: {file_path}")
 
+        # Сохранение угрозы в файл
+        if(ismon == 1):
+            save_threat_to_file(detailed_threat)
 
+        # Обновление report_text после сохранения новой угрозы
+        from interface import load_last_threats
+        load_last_threats()
 
         # Показываем уведомление в системном трее
         notification = Notify()
@@ -80,8 +88,33 @@ def scan_and_display(api_key, file_path, ismon, open_application, update_status)
 
     else:
         update_status(f"Файл {file_path} безопасен.")
-        detailed_threat += f"Файл {file_path} безопасен. Все проверки пройдены успешно!"
-        return detailed_threat, 1
+        return f"Файл {file_path} безопасен. Все проверки пройдены успешно!", 1
 
 
+
+def save_threat_to_file(detailed_threat):
+    # Добавляем detailed_threat в файл LAST_THREATS_FILE, сохраняя максимум 20 записей.
+    threats = []
+
+    # Загружаем текущие угрозы из файла, если он существует
+    if os.path.exists(LAST_THREATS_FILE):
+        with open(LAST_THREATS_FILE, "r", encoding="utf-8") as file:
+            try:
+                threats = json.load(file)
+            except json.JSONDecodeError:
+                threats = []
+
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    detailed_threat_with_time = f"[{current_time}] {detailed_threat}"
+
+    # Добавляем новую угрозу с временем
+    threats.append(detailed_threat_with_time)
+
+    # Оставляем только последние 20 записей
+    if len(threats) > 20:
+        threats.pop(0)  # Удаляем самую раннюю запись
+
+    # Сохраняем обновлённый список угроз обратно в файл
+    with open(LAST_THREATS_FILE, "w", encoding="utf-8") as file:
+        json.dump(threats, file, ensure_ascii=False, indent=2)
 

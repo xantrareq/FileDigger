@@ -6,7 +6,7 @@ from scanner import load_api_key, save_api_key, scan_and_display
 import os
 from tkinter import filedialog
 from datetime import datetime
-
+import json
 
 scanner_window_open = False
 api_key_window_open = False
@@ -14,7 +14,7 @@ monitor_window_open = False
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
+LAST_THREATS_FILE = os.path.join(BASE_DIR, "last_threats.env")
 
 
 
@@ -29,15 +29,15 @@ def create_tray_icon(root, open_api_key_window, open_scanner_window):
         root.destroy()
 
   
-    # image = Image.new('RGB', (64, 64), "blue")
+
     image = Image.open(os.path.join(BASE_DIR, "icon.png"))
     ImageDraw.Draw(image)
-    # draw.rectangle((0, 0, 63, 63), fill="blue")
-    # draw.text((25, 30), "V", fill="white")
+
 
     menu = Menu(
         MenuItem("API ключ", lambda: open_api_key_window(root)),
         MenuItem("Сканер", lambda: open_scanner_window(root)),
+        MenuItem("Мониторинг", lambda: open_monitor_window(root)),
         MenuItem("Выход", quit_application)
     )
     icon = Icon("file_digger_icon", image, "FileDigger", menu)
@@ -154,5 +154,74 @@ def open_scanner_window(root):
     report_text = tk.Text(window, wrap=tk.WORD, width=50, height=55,fg="white", bg = "#2e2e2e")
     report_text.pack(pady=10)
 
+
+
+def load_last_threats():
+    if monitor_window_open:
+        #Загружаем последние угрозы из файла и отображает их в report_text в обратном порядке.
+        if os.path.exists(LAST_THREATS_FILE):
+            with open(LAST_THREATS_FILE, "r", encoding="utf-8") as file:
+                try:
+                    threats = json.load(file)
+                    # Отображаем угрозы в обратном порядке
+                    report_text.delete("1.0", tk.END)  # Очищаем текстовое поле перед вставкой
+                    for threat in reversed(threats):
+                        report_text.insert(tk.END, threat + "\n\n")
+                except json.JSONDecodeError:
+                    report_text.insert(tk.END, "Ошибка при загрузке файла угроз.\n")
+        else:
+            report_text.insert(tk.END, "Файл с угрозами не найден.\n")
+
+def open_monitor_window(root):
+    
+    global monitor_window_open
+    if monitor_window_open:
+        return  # Если окно уже открыто, не создаём его снова
+
+    monitor_window_open = True
+  
+    
+    def on_close():
+        global monitor_window_open
+        monitor_window_open = False
+        window.destroy()
+        
+
+    def select_folder():
+        folder_path = filedialog.askdirectory()
+        if folder_path:
+            api_key = load_api_key()
+            if not api_key:
+                update_status("Пожалуйста, введите API ключ.")
+                return
+
+           
+
+    def remove_monitoring(folder_path):
+        print(f"Удаление мониторинга для папки: {folder_path}")
+        
+
+        
+    window = tk.Toplevel(root)
+    window.configure(bg="#2e2e2e")
+    window.geometry("600x500")
+    window.title("File Digger мониторинг")
+
+    
+    window.protocol("WM_DELETE_WINDOW", on_close)
+
+    
+    # Кнопка для выбора папки для мониторинга
+    tk.Button(window, text="Выбрать папку для мониторинга", command=select_folder, fg="white", bg = "#2e2e2e").pack(pady=10)
+
+    # Отображаем все активные мониторинги
+    active_monitors_frame = tk.Frame(window)
+    active_monitors_frame.pack(pady=10)
+
+    # Текстовое поле для отчёта
+    global report_text
+    report_text = tk.Text(window, wrap=tk.WORD, width=70, height=20,fg="white", bg = "#2e2e2e")
+    report_text.pack(pady=10)
+    
 
 
