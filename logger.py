@@ -1,9 +1,20 @@
 import logging
 from logging.handlers import RotatingFileHandler
 import os
+import sys
 
 # Путь к файлу логов
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+def get_exe_directory():
+    # Определяем путь к директории, где находится .exe или .py файл
+    if getattr(sys, 'frozen', False):
+        # Если приложение запущено как исполнимый файл
+        base_path = os.path.dirname(sys.executable)  # Путь к временной exe
+    else:
+        # Для обычной разработки
+        base_path = os.path.dirname(__file__)
+
+    return base_path
+BASE_DIR = get_exe_directory()
 
 LOG_FILE = os.path.join(BASE_DIR, "app.log")
 

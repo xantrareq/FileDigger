@@ -6,8 +6,20 @@ from scanner import scan_and_display
 
 import json
 import os
+import sys
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+def get_exe_directory():
+    # Определяем путь к директории, где находится .exe или .py файл
+    if getattr(sys, 'frozen', False):
+        # Если приложение запущено как исполнимый файл
+        base_path = os.path.dirname(sys.executable)  # Путь к exe
+    else:
+        # Для обычной разработки
+        base_path = os.path.dirname(__file__)
+
+    return base_path
+
+BASE_DIR = get_exe_directory()
 
 MONITORING_FILE = os.path.join(BASE_DIR, "monitoring.json")
 

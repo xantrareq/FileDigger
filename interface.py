@@ -7,6 +7,7 @@ from monitor import FolderMonitor
 from tkinter import filedialog
 import json
 import os
+import sys
 from notifypy import Notify
 from datetime import datetime
 from logger import get_logger
@@ -17,8 +18,17 @@ scanner_window_open = False
 api_key_window_open = False
 monitor_window_open = False 
 
+def get_exe_directory():
+    # Определяем путь к директории, где находится .exe или .py файл
+    if getattr(sys, 'frozen', False):
+        # Если приложение запущено как исполнимый файл
+        base_path = os.path.dirname(sys.executable)  # Путь к временной exe
+    else:
+        # Для обычной разработки
+        base_path = os.path.dirname(__file__)
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    return base_path
+BASE_DIR = get_exe_directory()
 LAST_THREATS_FILE = os.path.join(BASE_DIR, "last_threats.env")
 
 folder_monitor = FolderMonitor()
@@ -36,7 +46,7 @@ def create_tray_icon(root, open_api_key_window, open_scanner_window):
   
     logger.info("Запуск трея")
     try:
-        image = Image.open(os.path.join(BASE_DIR, "icon.png"))
+        image = Image.open(os.path.join(os.path.dirname(__file__), "icon.png"))
         ImageDraw.Draw(image)
 
         
@@ -91,7 +101,7 @@ def open_api_key_window(root):
         
         window.title("File Digger API ключ")
         
-        icon = tk.PhotoImage(file=(os.path.join(BASE_DIR, "icon.png")))
+        icon = tk.PhotoImage(file=(os.path.join(os.path.dirname(__file__), "icon.png")))
         window.iconphoto(True, icon)
         
         window.geometry("700x300")
@@ -166,7 +176,7 @@ def open_scanner_window(root):
         window.configure(bg="#2e2e2e")
         window.protocol("WM_DELETE_WINDOW", on_close)
         window.title("File Digger Сканер")
-        icon = tk.PhotoImage(file=(os.path.join(BASE_DIR, "icon.png")))
+        icon = tk.PhotoImage(file=(os.path.join(os.path.dirname(__file__), "icon.png")))
         window.iconphoto(True, icon)
         window.geometry("600x400")
         tk.Button(window, text="Выбрать файл для сканирования", command=upload_and_scan,fg="white", bg = "#2e2e2e").pack(pady=10)
@@ -288,7 +298,7 @@ def open_monitor_window(root):
         window.configure(bg="#2e2e2e")
         window.protocol("WM_DELETE_WINDOW", on_close)
         window.title("File Digger мониторинг")
-        icon = tk.PhotoImage(file=(os.path.join(BASE_DIR, "icon.png")))
+        icon = tk.PhotoImage(file=(os.path.join(os.path.dirname(__file__), "icon.png")))
         window.iconphoto(True, icon)
         window.geometry("600x500")
         

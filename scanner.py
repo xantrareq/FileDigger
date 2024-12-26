@@ -5,12 +5,23 @@ import requests
 from notifypy import Notify
 import json
 from datetime import datetime
-
+import sys
 
 
 
 # Определяем путь к директории скрипта
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+def get_exe_directory():
+    # Определяем путь к директории, где находится .exe или .py файл
+    if getattr(sys, 'frozen', False):
+        # Если приложение запущено как исполнимый файл
+        base_path = os.path.dirname(sys.executable)  # Путь к exe
+    else:
+        # Для обычной разработки
+        base_path = os.path.dirname(__file__)
+
+    return base_path
+
+BASE_DIR = get_exe_directory()
 
 # Полные пути к файлам
 API_KEY_FILE = os.path.join(BASE_DIR, "api_key.env")
@@ -26,6 +37,8 @@ def load_api_key():
 
 def save_api_key(api_key):
     with open(API_KEY_FILE, "w") as f:
+        print(f"API ключ успешно сохранен в {API_KEY_FILE}")
+
         f.write(api_key)
 
 
@@ -84,7 +97,7 @@ def scan_and_display(api_key, file_path, ismon, open_application, update_status)
             notification.application_name = "FileDigger"
             notification.title = "Угроза"
             notification.message = f"Обнаружена угроза в файле: {file_path}"
-            notification.icon = os.path.join(BASE_DIR, "notify.png")
+            notification.icon = os.path.join(os.path.dirname(__file__), "notify.png")
             notification.send(block=False)
 
         open_application()
