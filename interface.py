@@ -91,7 +91,7 @@ def open_api_key_window(root):
         window.title("File Digger API ключ")
         
         icon = tk.PhotoImage(file=(os.path.join(BASE_DIR, "icon.png")))
-        window.iconphoto(False, icon)
+        window.iconphoto(True, icon)
         
         window.geometry("700x300")
         api_key = load_api_key()
@@ -161,7 +161,7 @@ def open_scanner_window(root):
         window.protocol("WM_DELETE_WINDOW", on_close)
         window.title("File Digger Сканер")
         icon = tk.PhotoImage(file=(os.path.join(BASE_DIR, "icon.png")))
-        window.iconphoto(False, icon)
+        window.iconphoto(True, icon)
         window.geometry("600x400")
         tk.Button(window, text="Выбрать файл для сканирования", command=upload_and_scan,fg="white", bg = "#2e2e2e").pack(pady=10)
         global report_text
@@ -274,7 +274,7 @@ def open_monitor_window(root):
         window.protocol("WM_DELETE_WINDOW", on_close)
         window.title("File Digger мониторинг")
         icon = tk.PhotoImage(file=(os.path.join(BASE_DIR, "icon.png")))
-        window.iconphoto(False, icon)
+        window.iconphoto(True, icon)
         window.geometry("600x500")
         
         # Кнопка для выбора папки для мониторинга
