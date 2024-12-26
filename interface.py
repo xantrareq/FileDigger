@@ -7,6 +7,7 @@ from monitor import FolderMonitor
 from tkinter import filedialog
 import json
 import os
+from notifypy import Notify
 from datetime import datetime
 from logger import get_logger
 
@@ -138,7 +139,12 @@ def open_scanner_window(root):
         if file_path:
             api_key = load_api_key()
             if not api_key:
-                update_status("Пожалуйста, введите API ключ.")
+                notification = Notify()
+                notification.application_name = "FileDigger"
+                notification.title = "API ключ"
+                notification.message = "Вы не ввели api ключ"
+                notification.icon = os.path.join(BASE_DIR, "notify.png")
+                notification.send(block=False)
                 return
             threat,safety = scan_and_display(api_key, file_path, 0, lambda: None, update_status)
             
@@ -210,7 +216,12 @@ def open_monitor_window(root):
         if folder_path:
             api_key = load_api_key()
             if not api_key:
-                update_status("Пожалуйста, введите API ключ.")
+                notification = Notify()
+                notification.application_name = "FileDigger"
+                notification.title = "API ключ"
+                notification.message = "Вы не ввели api ключ"
+                notification.icon = os.path.join(BASE_DIR, "notify.png")
+                notification.send(block=False)
                 return
 
             # Проверяем, есть ли уже эта папка в мониторинге
@@ -258,15 +269,19 @@ def open_monitor_window(root):
 
         # Добавляем все активные мониторинги
         for folder in folder_monitor.monitors.keys():
-            frame = tk.Frame(active_monitors_frame,bg="#2e2e2e")
-            frame.configure(bg="#2e2e2e")
-            frame.pack(pady=1)
 
-            label = tk.Label(frame, text=f"Мониторинг: {folder}",fg="white", bg = "#2e2e2e")
+            
+            frame = tk.Frame(active_monitors_frame, bg="#2e2e2e")
+            frame.configure(bg="#2e2e2e")
+            frame.pack(pady=1, fill=tk.X)
+
+            label = tk.Label(frame, text=f"Мониторинг: {folder}", fg="white", bg="#2e2e2e", bd=0, highlightthickness=0)
             label.pack(side=tk.LEFT)
 
-            remove_button = tk.Button(frame, text="Удалить", command=lambda folder=folder: remove_monitoring(folder),fg="white", bg = "#2e2e2e")
+            remove_button = tk.Button(frame, text="Удалить", command=lambda folder=folder: remove_monitoring(folder), fg="white", bg="#7e7e7e", bd=0, highlightthickness=0)
             remove_button.pack(side=tk.LEFT, padx=10)
+            
+            
     logger.info("Запуск monitoring-window")
     try:
         window = tk.Toplevel(root)
