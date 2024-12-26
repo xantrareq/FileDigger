@@ -39,20 +39,13 @@ def create_tray_icon(root, open_api_key_window, open_scanner_window):
         image = Image.open(os.path.join(BASE_DIR, "icon.png"))
         ImageDraw.Draw(image)
 
-        api_key = load_api_key()
-        if(api_key):
-            menu = Menu(
-                MenuItem("API ключ", lambda: open_api_key_window(root)),
-                MenuItem("Сканер", lambda: open_scanner_window(root)),
-                MenuItem("Мониторинг", lambda: open_monitor_window(root)),
-                MenuItem("Выход", quit_application)
-            )
-        else:
-            menu = Menu(
-                MenuItem("API ключ", lambda: open_api_key_window(root)),
-                MenuItem("Выход", quit_application)
-            )
         
+        menu = Menu(
+            MenuItem("API ключ", lambda: open_api_key_window(root)),
+            MenuItem("Сканер", lambda: open_scanner_window(root)),
+            MenuItem("Мониторинг", lambda: open_monitor_window(root)),
+            MenuItem("Выход", quit_application)
+        )
         icon = Icon("file_digger_icon", image, "FileDigger", menu)
         threading.Thread(target=icon.run, daemon=True).start()
     except Exception as e:
@@ -69,7 +62,7 @@ def open_api_key_window(root):
     
 
     def save_and_close():
-        api_key = load_api_key()
+        api_key = api_key_entry.get()
         if api_key:
             save_api_key(api_key)
             update_status("API ключ успешно сохранен.")
