@@ -15,5 +15,9 @@ https://www.virustotal.com
 ![image](https://github.com/user-attachments/assets/36186d04-594d-4823-81f2-b079e7dde94e)
 ### У API VirusTotal есть свои ограничения
 ![image](https://github.com/user-attachments/assets/15d966ec-e2fe-4a84-b887-cc57cad3eaf0)
+## Автозапуск приложения
+### Нажмите ctrl+R. Напишите shell:sturtup
+![image](https://github.com/user-attachments/assets/936d12d2-bcb3-4407-9130-83d232c8d613)
+### Вставляете туда приложение
 
 В Release есть готовая версия приложения
