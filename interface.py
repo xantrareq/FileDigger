@@ -62,7 +62,7 @@ def create_tray_icon(root, open_api_key_window, open_scanner_window):
         notification.application_name = "FileDigger"
         notification.title = "Приложение запущено"
         notification.message = "Приложение готово к работе"
-        notification.icon = os.path.join(BASE_DIR, "icon.png")
+        notification.icon = os.path.join(os.path.dirname(__file__), "icon.png")
         notification.send(block=False)
     except Exception as e:
         logger.error(f"Ошибка при запуске трея: {e}")
