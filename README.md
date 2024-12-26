@@ -19,4 +19,9 @@ FileDigger is a custom antivirus application built using the VirusTotal API to s
 ### VirusTotal API has its own limitations
 ![image](https://github.com/user-attachments/assets/15d966ec-e2fe-4a84-b887-cc57cad3eaf0)
 
+## Autostart Application
+### Press `Ctrl + R`. Type `shell:startup`
+![image](https://github.com/user-attachments/assets/936d12d2-bcb3-4407-9130-83d232c8d613)
+### Paste the application there
+
 A ready-to-use version of the application is available in the Release section.
