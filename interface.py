@@ -58,6 +58,12 @@ def create_tray_icon(root, open_api_key_window, open_scanner_window):
         )
         icon = Icon("file_digger_icon", image, "FileDigger", menu)
         threading.Thread(target=icon.run, daemon=True).start()
+        notification = Notify()
+        notification.application_name = "FileDigger"
+        notification.title = "Приложение запущено"
+        notification.message = "Приложение готово к работе"
+        notification.icon = os.path.join(BASE_DIR, "icon.png")
+        notification.send(block=False)
     except Exception as e:
         logger.error(f"Ошибка при запуске трея: {e}")
         
