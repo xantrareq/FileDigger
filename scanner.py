@@ -41,13 +41,15 @@ def scan_file(api_key, file_path):
     url_report = "https://www.virustotal.com/vtapi/v2/file/report"
     params_report = {'apikey': api_key, 'resource': file_hash}
     response_report = requests.get(url_report, params=params_report, verify=True)
+
     if response_report.status_code == 204:
         return {"error": "Превышено ограничение на запросы. Подождите немного."}
     if response_report.status_code != 200:
-        return {"error": f"Ошибка сервера: {response_report.status_code}"}
+        return 200
     response_json = response_report.json()
     if response_json.get('response_code') == 0:
         return {"positives": 0, "total": 0, "scans": {}, "permalink": ""}
+    
     return response_json
 
 
@@ -57,14 +59,16 @@ def scan_and_display(api_key, file_path, ismon, open_application, update_status)
     result = scan_file(api_key, file_path)
     detailed_threat = ""
 
-    if result.get("positives", 0) > 0:
+    if result == 200:
+        return "Не получилось корректно отработать. Проверьте ключ", 2
+    elif result.get("positives", 0) > 0:
         detailed_threat = f"Угроза в файле: {file_path}\n"
         detailed_threat += f"Обнаружено угроз: {result['positives']} из {result['total']}\n"
         for engine, details in result['scans'].items():
             if details['detected']:
                 detailed_threat += f"- {engine}: {details['result']}\n"
         detailed_threat += f"Ссылка на отчет: {result.get('permalink', '')}\n"
-
+ 
         update_status(f"Обнаружена угроза в файле: {file_path}")
 
         # Сохранение угрозы в файл
@@ -74,14 +78,14 @@ def scan_and_display(api_key, file_path, ismon, open_application, update_status)
         # Обновление report_text после сохранения новой угрозы
         from interface import load_last_threats
         load_last_threats()
-
-        # Показываем уведомление в системном трее
-        notification = Notify()
-        notification.application_name = "FileDigger"
-        notification.title = "Угроза"
-        notification.message = f"Обнаружена угроза в файле: {file_path}"
-        notification.icon = os.path.join(BASE_DIR, "notify.png")
-        notification.send(block=False)
+        if(ismon == 1):
+            # Показываем уведомление в системном трее
+            notification = Notify()
+            notification.application_name = "FileDigger"
+            notification.title = "Угроза"
+            notification.message = f"Обнаружена угроза в файле: {file_path}"
+            notification.icon = os.path.join(BASE_DIR, "notify.png")
+            notification.send(block=False)
 
         open_application()
         return detailed_threat, 0
@@ -89,6 +93,7 @@ def scan_and_display(api_key, file_path, ismon, open_application, update_status)
     else:
         update_status(f"Файл {file_path} безопасен.")
         return f"Файл {file_path} безопасен. Все проверки пройдены успешно!", 1
+
 
 
 
